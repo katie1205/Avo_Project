@@ -1,2 +1,2 @@
 # Avo_Project
-asdfasdf
+This project is about weekly avocado sales in Houston, TX.
