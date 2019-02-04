@@ -21,41 +21,19 @@ To guide retailers, investors, and consumers toward profitable and affordable so
 Results and Discussion
 ----------------------
 
-`{r, include=FALSE} #This chunk shows the data cleaning we completed to get to the cleaned dataset #Filter for Houston, filter for conventional avocados only, only keep the date and volume columns, order by date descending library(dplyr) library(readxl) avocado <- read_excel("C:/Users/sooch/Desktop/avocado.xlsx") avocado<-as.data.frame(avocado) str(avocado) colnames(avocado)[4]<-"Total_Volume" str(avocado) avo_clean <- avocado %>% filter(region == 'Houston') %>% filter(type=="conventional") %>% select(Date,Total_Volume) %>% mutate(Date = as.Date(Date, "%Y-%m-%d")) %>% arrange(Date)`
-
-\`\`\`{r, include = FALSE}
-
-Select desired response variable
-================================
-
-avo\_dat\_vol &lt;- avo\_clean %&gt;% select(Date, Total\_Volume)
-
-Create time series object
-=========================
-
-vol\_reg\_ts &lt;- ts(avo\_dat\_vol$Total\_Volume, frequency = 52, start = c(2015, 1), end = c(2018, 13)) head(vol\_reg\_ts) \`\`\`
-
 The timeframe for the 169 weekly observations for average Avocado volume ranged from January 4, 2015 to March 25, 2018. To create a time series object from the file, we selected only our desired sales volume variable and date, and utilized the ts( ) function with a frequency of 52.
 
 ***Data Exploration***
 
 The original time series is plotted below:
 
-\`\`\`{r echo = FALSE, message = FALSE, warning = FALSE}
-
-Plot original time series
-=========================
-
-ts.plot(vol\_reg\_ts, main = "Weekly Avocado Sales Vol (Houston, 2015-2018)", ylab = "Sales Volume") \`\`\`
+![](avo_markdown_withimages_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 As illustrated in the above plot, avocado sales volume appeared non-stationary. Avocado volume remained moderately constant from 2015 until late 2016/early 2017. From then onward, the series fluctuated, exhibiting slightly more variability. A steep, upward trend emerged just before 2018, followed by a sharp decline immediately thereafter. We surmised that a stationary series could be attained through the following two transformations. The trends could be eliminated through differencing while a natural logarithm transformation might stabilize the non-constant variance. Before manipulating the data, however, the ACF and PACF were plotted and examined.
 
-\`\`\`{r echo = FALSE, message = FALSE, warning = FALSE} \#Load necessary library library(astsa)
+![](avo_markdown_withimages_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
-Plot ACF and PACF
-=================
-
-acf2(vol\_reg\_ts, max.lag = 100, main = "Avocado Volume Correlograms")\[0\] \`\`\`
+    ## numeric(0)
 
 As anticipated, the ACF decayed gradually, thus confirming non-stationarity. The ACF also appeared to exhibit slightly cyclical behavior, oscillating between marginally significant negative and positive values roughly every 0.5 increments (half a year) as it gradually tailed off. Before addressing potential seasonality, however, the data still needed to be stationarized.
 
@@ -63,65 +41,17 @@ As anticipated, the ACF decayed gradually, thus confirming non-stationarity. The
 
 As previously stated, the two violations of stationarity conditions called for both types of transformations: the logarithm transformation and the first difference. Both transformations were applied, and the plots of the resulting time series are shown below:
 
-\`\`\`{r include = FALSE}
-
-Try different ransformations
-============================
-
-vol\_reg\_ts\_diff &lt;- diff(vol\_reg\_ts) \#First Difference vol\_reg\_ts\_log &lt;- log(vol\_reg\_ts) \#Log Transformation vol\_reg\_ts\_diff\_log &lt;- diff(log(vol\_reg\_ts)) \#Difference-of-Log transformation
-
-EDA to determine if seasonality is present
-==========================================
-
-library(forecast)
-
-ggseasonplot(vol\_reg\_ts, main = "Original Series Seasonplot") ggmonthplot(vol\_reg\_ts)
-
-ggseasonplot(vol\_reg\_ts\_diff, main = "Differenced Series Seasonplot") ggmonthplot(vol\_reg\_ts\_diff)
-
-ggseasonplot(vol\_reg\_ts\_diff\_log, main = "Difference-of-Log Series Seasonplot") ggmonthplot(vol\_reg\_ts\_diff\_log)
-
-While the series fluctuates a lot, distinct, consistent seasonal pattern was not observed in the above season plot.
-===================================================================================================================
-
-``{r echo = FALSE, fig.height = 3, fig.width = 3.2}
-
-Plot first and second differences together to compare
-=====================================================
-
-ts.plot(vol\_reg\_ts\_diff, main = "First Difference") ts.plot(vol\_reg\_ts\_diff\_log, main = "Difference-of-Log") \`\`\`
+![](avo_markdown_withimages_files/figure-markdown_github/unnamed-chunk-6-1.png)![](avo_markdown_withimages_files/figure-markdown_github/unnamed-chunk-6-2.png)
 
 While the plots for both series were fairly similar, the difference-of-log series appeared to have a more constant variance as evidenced by the following observation: the range of values in the first half more closely resembled that of the second half. Based on its apparent improved stationarity, the difference-of-log transformed series was used in our proceeding analysis. Analysis of PACF and ACF plots for each transformation further reaffirmed this decision (as shown below in the .Rmd file).
 
-\`\`\`{r include = FALSE}
+![](avo_markdown_withimages_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
-acf2(vol\_reg\_ts\_diff, max.lag = 100, main = "Differenced Series Correlograms")\[0\] \#First Difference---&gt; somewhat stationary acf2(vol\_reg\_ts\_log, max.lag = 150, main = "Log-Transformed Correlograms")\[0\] \#Gradual decay -----&gt; Non-stationary ``{r echo = FALSE}
-
-acf2(vol\_reg\_ts\_diff\_log, max.lag = 100, main = "Difference-of-Log Transformed Correlograms")\[0\] \`\`\`
+    ## numeric(0)
 
 The ACF above confirms that the series has been stationarized. There does not seem to be any evidence of seasonality since nearly every ACF and PACF value after lag = 2 is statistically insignificant. There are a few values that extend past the confidence bounds, but we would argue that this is most likely due to noise in the data since there is no distinguishable pattern. We also assessed seasonality of the data using ggseasonplot( ) and ggmonthplot( ), but found no evidence of seasonality (in .Rmd file).
 
 In accordance with the Box-Jenkins method, we examined the behavior of the ACF and PACF of the series and compared it to the general expectations for known ARMA(p,q) classes. The ACF and the PACF plots resembled one another, and both could arguably have been exhibiting either one of the following two behaviors: a cut-off after the second lag or a tail-off. It was difficult to assess the signficance of lags that extended only slightly beyond the confidence bounds in each plot. If we had interpreted both as cutting off after lag = 2, then an MA(2) model (or equivalently, an ARIMA(0,1,2) for the *un*differenced, log-transformed data) would be optimal. If we had instead interpreted the ACF as tailing off and the PACF as cutting off, then an AR(2) model (or an ARIMA(2,1,0) for the *un*differenced, log-transformed data) would be a reasonable proposition. Finally, if we had interpreted *both* ACF and PACF as tailing off, then an ARIMA(p,d,q) model would be the prime candidate. We examined the EACF for this third model and found that the order should be ARIMA(1,1,2). Consequently, three potential candidates emerged:
-
-\`\`\`{r include = FALSE}
-
-Let's look at the EACF for possible orders of an ARIMA(p,d,q).
-==============================================================
-
-Load necessary library
-======================
-
-library(TSA)
-
-Run eacf function
-=================
-
-eacf(vol\_reg\_ts\_log) \#here we are only applying eacf to the undifferenced data for accurate results
-
-The EACF seems to show a vertex at 1,2 which would suggest an ARIMA(1,1,2) for the undifferenced (but log transformed) data.
-============================================================================================================================
-
-\`\`\`
 
 ***Model Fitting***
 
@@ -133,31 +63,76 @@ As mentioned previously, our three candidates were:
 
 -Candidate \#3: ARIMA(1,1,2)
 
-\`\`\`{r, include=FALSE}
-
-(m1 &lt;- sarima(vol\_reg\_ts\_log, 0, 1, 2)) \#ARIMA(0,1,2) theta=c(-0.3434,-0.2409) constant=0.0028 \#Both coefficients are significant, but the constant is not. Run again with no.constant = TRUE. (m1\_nc &lt;- sarima(vol\_reg\_ts\_log, 0, 1, 2, no.constant = TRUE)) \#theta=c(-0.3416, -0.2375) \#This model appears sufficient even though the Q-Q plot points somewhat stray from normality
-
-(m2 &lt;- sarima(vol\_reg\_ts\_log, 2, 1, 0)) \#ARIMA(2,1,0) phi=c(-0.312, -0.3163) constant=0.0030 \#Both coefficients are significant, but the constant is not. This model appears to be sufficient, but the Q-Q plot points stray further from normality than the previous option. (m2\_nc &lt;- sarima(vol\_reg\_ts\_log, 2, 1, 0, no.constant = TRUE)) \#phi=c(-0.3117, -0.3158) \#coefficient estimates were both significant; no noticeable difference for outputted plots compared to m2
-
-(m3 &lt;- sarima(vol\_reg\_ts\_log, 1, 1, 2)) \#ARIMA(1,1,2) \#Only the MA(2) coefficient is significant to this model, and similar to m2, the Q-Q plot points stray quite a bit from the normal line. Also, some of the p-values for the Ljung-Box statistic fall at least halfway below the confidence line. (m3\_nc &lt;- sarima(vol\_reg\_ts\_log, 1, 1, 2, no.constant = TRUE)) \`\`\`
-
 In accordance with Box-Jenkins, parameters were estimated for the candidate classes proposed and the resulting models' standardized residuals were analyzed to evaluate goodness-of-fit. We utilized the sarima( ) function to assess diagnostics for all three candidates (all outputs and their interpretations can be viewed in .Rmd file) and ultimately selected the non-constant model esimated for Candidate \#1 as our final model. The Ljung-Box statistics plot, QQ-plots, and residual correlograms supplied by sarima( ) were examined to determine whether assumptions had been violated for this model or if any of the model's residuals were autocorrelated. The outputted plots are displayed below:
 
-\`\`\`{r fig.height = 5}
+``` r
+#Constant was revealed to be insignificant, so here we are applying no.constant = TRUE.
 
-Constant was revealed to be insignificant, so here we are applying no.constant = TRUE.
-======================================================================================
+#We are also applying this differencing model to the log-transformed data.
 
-We are also applying this differencing model to the log-transformed data.
-=========================================================================
+sarima(vol_reg_ts_log, 0, 1, 2, no.constant = TRUE)
+```
 
-sarima(vol\_reg\_ts\_log, 0, 1, 2, no.constant = TRUE) \`\`\`
+    ## initial  value -1.867215 
+    ## iter   2 value -1.940268
+    ## iter   3 value -1.945080
+    ## iter   4 value -1.948044
+    ## iter   5 value -1.948377
+    ## iter   6 value -1.948395
+    ## iter   7 value -1.948396
+    ## iter   8 value -1.948396
+    ## iter   8 value -1.948396
+    ## iter   8 value -1.948396
+    ## final  value -1.948396 
+    ## converged
+    ## initial  value -1.947356 
+    ## iter   2 value -1.947366
+    ## iter   3 value -1.947370
+    ## iter   4 value -1.947370
+    ## iter   4 value -1.947370
+    ## iter   4 value -1.947370
+    ## final  value -1.947370 
+    ## converged
+
+![](avo_markdown_withimages_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+    ## $fit
+    ## 
+    ## Call:
+    ## stats::arima(x = xdata, order = c(p, d, q), seasonal = list(order = c(P, D, 
+    ##     Q), period = S), include.mean = !no.constant, optim.control = list(trace = trc, 
+    ##     REPORT = 1, reltol = tol))
+    ## 
+    ## Coefficients:
+    ##           ma1      ma2
+    ##       -0.3416  -0.2375
+    ## s.e.   0.0784   0.0838
+    ## 
+    ## sigma^2 estimated as 0.02031:  log likelihood = 88.78,  aic = -171.55
+    ## 
+    ## $degrees_of_freedom
+    ## [1] 166
+    ## 
+    ## $ttable
+    ##     Estimate     SE t.value p.value
+    ## ma1  -0.3416 0.0784 -4.3596  0.0000
+    ## ma2  -0.2375 0.0838 -2.8353  0.0051
+    ## 
+    ## $AIC
+    ## [1] -2.873097
+    ## 
+    ## $AICc
+    ## [1] -2.860402
+    ## 
+    ## $BIC
+    ## [1] -3.836056
 
 The time plot of the residuals did not indicate any obvious pattern, and most autocorrelations remained within the confidence bounds for all lags. Although some of the Q-Q plot points *were* outside of the confidence bounds, this plot displayed the closest distribution to normal of the three by far. Finally, the p-values for all Ljung-Box statistics exceeded *α* = 0.05. Thus we felt strongly that this was a good candidate. Next, we compared the AIC, AICc, and BIC of all three models for additional confirmation.
 
-\`\`\`{r include = FALSE}
-
-compare &lt;- matrix(c(m1\_nc*A**I**C*, *m*1<sub>*n*</sub>*c*AICc, m1\_nc*B**I**C*, *m*2<sub>*n*</sub>*c*AIC, m2\_nc*A**I**C**c*, *m*2<sub>*n*</sub>*c*BIC, m3\_nc*A**I**C*, *m*3<sub>*n*</sub>*c*AICc, m3\_nc$BIC), 3, 3) colnames(compare) &lt;- c("ARIMA(0,1,2)", "ARIMA(2,1,0)","ARIMA(1,1,2)") ``{r echo = FALSE} compare \`\`\`
+    ##      ARIMA(0,1,2) ARIMA(2,1,0) ARIMA(1,1,2)
+    ## [1,]    -2.873097    -2.865438    -2.862015
+    ## [2,]    -2.860402    -2.852743    -2.848737
+    ## [3,]    -3.836056    -3.828397    -3.806454
 
 As shown in the above matrix, all information criterias preferred the ARIMA(0,1,2) model, and we agreed. In terms of the volume series, *x*<sub>*t*</sub>, this model can be expressed algebraically as:
 
@@ -169,10 +144,27 @@ As shown in the above matrix, all information criterias preferred the ARIMA(0,1,
 
 To ensure our model was sufficient, we analyzed the forecasted values for the next quarter (13 weeks).
 
-``` {r}
-
+``` r
 sarima.for(vol_reg_ts_log, 13, 0, 1, 2)
 ```
+
+![](avo_markdown_withimages_files/figure-markdown_github/unnamed-chunk-14-1.png)
+
+    ## $pred
+    ## Time Series:
+    ## Start = c(2018, 14) 
+    ## End = c(2018, 26) 
+    ## Frequency = 52 
+    ##  [1] 14.45653 14.35396 14.35678 14.35961 14.36243 14.36525 14.36808
+    ##  [8] 14.37090 14.37373 14.37655 14.37937 14.38220 14.38502
+    ## 
+    ## $se
+    ## Time Series:
+    ## Start = c(2018, 14) 
+    ## End = c(2018, 26) 
+    ## Frequency = 52 
+    ##  [1] 0.1423435 0.1702815 0.1802663 0.1897263 0.1987365 0.2073556 0.2156304
+    ##  [8] 0.2235992 0.2312937 0.2387402 0.2459615 0.2529766 0.2598024
 
 The above plot illustrated how, based on our model, avocado sales in the Houston area would be expected to remain on the higher end of the trend over the next quarter. This seemed consistent with our research, and in support of our hypothesis.
 
