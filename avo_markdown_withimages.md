@@ -136,7 +136,7 @@ The time plot of the residuals did not indicate any obvious pattern, and most au
 
 As shown in the above matrix, all information criterias preferred the ARIMA(0,1,2) model, and we agreed. In terms of the volume series, *x*<sub>*t*</sub>, this model can be expressed algebraically as:
 
-*l**n*(*x*<sub>*t*</sub>)−*l**n*(*x*<sub>*t* − 1</sub>)=*w*<sub>*t*</sub> − 0.3416*w*<sub>*t* − 1</sub> − 0.2375*w*<sub>*t* − 2</sub>
+*ln*(*x*<sub>*t*</sub>)−*ln*(*x*<sub>*t* − 1</sub>)=*w*<sub>*t*</sub> − 0.3416*w*<sub>*t* − 1</sub> − 0.2375*w*<sub>*t* − 2</sub>
 
 *where *w*<sub>*t*</sub> is uncorrelated, white noise and ln denotes the natural logarithm, or logarithm with base e. *
 
