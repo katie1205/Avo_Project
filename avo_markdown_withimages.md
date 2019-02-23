@@ -57,11 +57,11 @@ In accordance with the Box-Jenkins method, we examined the behavior of the ACF a
 
 As mentioned previously, our three candidates were:
 
--Candidate \#1: ARIMA(0,1,2)
++ Candidate \#1: ARIMA(0,1,2)
 
--Candidate \#2: ARIMA(2,1,0)
++ Candidate \#2: ARIMA(2,1,0)
 
--Candidate \#3: ARIMA(1,1,2)
++ Candidate \#3: ARIMA(1,1,2)
 
 In accordance with Box-Jenkins, parameters were estimated for the candidate classes proposed and the resulting models' standardized residuals were analyzed to evaluate goodness-of-fit. We utilized the sarima( ) function to assess diagnostics for all three candidates (all outputs and their interpretations can be viewed in .Rmd file) and ultimately selected the non-constant model esimated for Candidate \#1 as our final model. The Ljung-Box statistics plot, QQ-plots, and residual correlograms supplied by sarima( ) were examined to determine whether assumptions had been violated for this model or if any of the model's residuals were autocorrelated. The outputted plots are displayed below:
 
@@ -171,13 +171,13 @@ The above plot illustrated how, based on our model, avocado sales in the Houston
 Conclusion
 ----------
 
-Using the Box-Jenkins method, the best possible class for the optimal model was an ARIMA(0,1,2) applied to the log transformed, undifferenced data. The parameter estimates for the ARIMA(0,1,2) proposed by sarima( ) were $\\hat\\theta\_1 = -0.3416$, $\\hat\\theta\_2 = -0.2375$, and a constant of .0028. Both MA coefficient estimates were significant, but the constant was not, so after removing it and analyzing the residual diagnostics it was determined that among all candidates, this model was optimal because:
+Using the Box-Jenkins method, the best possible class for the optimal model was an ARIMA(0,1,2) applied to the log transformed, undifferenced data. The parameter estimates for the ARIMA(0,1,2) proposed by sarima( ) were *theta*<sub>*1*<\sub>=-0.3416, *theta*<sub>*2*<\sub>=-0.2375, and a constant of .0028. Both MA coefficient estimates were significant, but the constant was not, so after removing it and analyzing the residual diagnostics it was determined that among all candidates, this model was optimal because:
 
--No model assumptions were violated. The standardized residuals appeared stationary and the p-values for all q-statistics of the Ljung-Box Test exceeded *α* = 0.05.
++ No model assumptions were violated. The standardized residuals appeared stationary and the p-values for all q-statistics of the Ljung-Box Test exceeded *α* = 0.05.
 
--All parameter estimates were significant for *α* = 0.05.
++ All parameter estimates were significant for *α* = 0.05.
 
--All information criteria favored this candidate.
++ All information criteria favored this candidate.
 
 Using this final model to forecast avocado sales volume for the Houston area over the next quarter resulted in values that seemed in-line with our research as they were mostly on the higher end of the trend, and seemed slightly upward in nature. While we felt confident about this model, we would like to emphasize that the accuracy of our forecast remains to be seen. It is important that this analysis be revisited frequently as more data becomes available, and that the forecasting model be modified accordingly.
 
