@@ -1,6 +1,5 @@
-# Avo_Project
-
-This project is a time series analysis of weekly :avocado: sales in Houston, TX. The goal of the project was to apply the 
+# Avocados
+This project was a time series analysis of weekly :avocado: sales in Houston, TX. The goal of the project was to apply the 
 Box-Jenkins method to:
 + assess stationarity of the series 
   + if nonstationary, transform series to stationarize (if possible)
