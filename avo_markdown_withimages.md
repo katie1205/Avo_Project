@@ -127,7 +127,7 @@ sarima(vol_reg_ts_log, 0, 1, 2, no.constant = TRUE)
     ## $BIC
     ## [1] -3.836056
 
-The time plot of the residuals did not indicate any obvious pattern, and most autocorrelations remained within the confidence bounds for all lags. Although some of the Q-Q plot points *were* outside of the confidence bounds, this plot displayed the closest distribution to normal of the three by far. Finally, the p-values for all Ljung-Box statistics exceeded *α* = 0.05. Thus we felt strongly that this was a good candidate. Next, we compared the AIC, AICc, and BIC of all three models for additional confirmation.
+The time plot of the residuals did not indicate any obvious pattern, and most autocorrelations remained within the confidence bounds for all lags. Although some of the Q-Q plot points *were* outside of the confidence bounds, this plot displayed the closest distribution to normal of the three by far. Finally, the p-values for all Ljung-Box statistics exceeded α = 0.05. Thus we felt strongly that this was a good candidate. Next, we compared the AIC, AICc, and BIC of all three models for additional confirmation.
 
     ##      ARIMA(0,1,2) ARIMA(2,1,0) ARIMA(1,1,2)
     ## [1,]    -2.873097    -2.865438    -2.862015
@@ -171,11 +171,11 @@ The above plot illustrated how, based on our model, avocado sales in the Houston
 Conclusion
 ----------
 
-Using the Box-Jenkins method, the best possible class for the optimal model was an ARIMA(0,1,2) applied to the log transformed, undifferenced data. The parameter estimates for the ARIMA(0,1,2) proposed by sarima( ) were *theta*<sub>*1*<\sub>=-0.3416, *theta*<sub>*2*<\sub>=-0.2375, and a constant of .0028. Both MA coefficient estimates were significant, but the constant was not, so after removing it and analyzing the residual diagnostics it was determined that among all candidates, this model was optimal because:
+Using the Box-Jenkins method, the best possible class for the optimal model was an ARIMA(0,1,2) applied to the log transformed, undifferenced data. The parameter estimates for the ARIMA(0,1,2) proposed by sarima( ) were &theta;<sub>1</sub>=-0.3416, &theta;<sub>2</sub>=-0.2375, and a constant of .0028. Both MA coefficient estimates were significant, but the constant was not, so after removing it and analyzing the residual diagnostics it was determined that among all candidates, this model was optimal because:
 
-+ No model assumptions were violated. The standardized residuals appeared stationary and the p-values for all q-statistics of the Ljung-Box Test exceeded *α* = 0.05.
++ No model assumptions were violated. The standardized residuals appeared stationary and the p-values for all q-statistics of the Ljung-Box Test exceeded α = 0.05.
 
-+ All parameter estimates were significant for *α* = 0.05.
++ All parameter estimates were significant for α = 0.05.
 
 + All information criteria favored this candidate.
 
